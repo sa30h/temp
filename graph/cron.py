@@ -1,34 +1,39 @@
-# from django_cron import CronJobBase, Schedule
-# from .models import Covidcases
-# import requests
-# import datetime
+from django_cron import CronJobBase, Schedule
+from .models import Temp
+import requests
+import datetime
 
-# class MyCronJob(CronJobBase):
-#     RUN_EVERY_MINS = 24*60*60 # every 24 hours
+class MyCronJob(CronJobBase):
+    RUN_EVERY_MINS = 24*60*60 # every 24 hours
 
-#     schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
-#     code = 'application.my_cron_job'  
+    schedule = Schedule(run_every_mins=RUN_EVERY_MINS)
+    code = 'application.my_cron_job'  
 
-#     def do(self):
+    def do(self):
 
-#         try: 
-#             url = "https://covid-193.p.rapidapi.com/statistics"
+        try: 
+            date=datetime.datetime.today().date()
+            url = "https://weatherapi-com.p.rapidapi.com/history.json"
 
-#             headers = {
-#                 "X-RapidAPI-Key": "eba8bf64c0msha8d7872eae06eccp147836jsn25ca06e40347",
-#                 "X-RapidAPI-Host": "covid-193.p.rapidapi.com"
-#                 }
+            country=['Canada','Brazil','Japan','India']
 
-#             response = requests.request("GET", url, headers=headers)
+            for i in country:
 
-#             # print(response.json())
+                # querystring = {"q":i,"dt":"2022-08-09","lang":"en"}
+                querystring = {"q":i,"dt":str(date),"lang":"en"}
 
-#             for i in range(0,20):
-#                 country=response.json()['response'][i]['country']
-#                 total_case=response.json()['response'][i]['cases']['total']
-#                 date=response.json()['response'][i]['day']
-#                 c=Covidcases(country=country,total_case=total_case,date=date)
-#                 c.save()
+                headers = {
+                    "X-RapidAPI-Key": "eba8bf64c0msha8d7872eae06eccp147836jsn25ca06e40347",
+                    "X-RapidAPI-Host": "weatherapi-com.p.rapidapi.com"
+                }
 
-#         except:
-#             print('can not run get data in application view')
+                response = requests.request("GET", url, headers=headers, params=querystring)
+                name=response.json()['location']['name']
+                country_res=response.json()['location']['country']
+                date_res=response.json()['forecast']['forecastday'][0]['date']
+                temp_f=response.json()['forecast']['forecastday'][0]['day']['maxtemp_f']
+                t=Temp(name=name,country=country_res,date=date_res,temp_f=str(temp_f))
+                t.save()
+
+        except:
+            print('failed')

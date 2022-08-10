@@ -72,10 +72,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'weather.wsgi.application'
 
-# CRON_CLASSES = [
-#     "application.cron.MyCronJob",
+CRON_CLASSES = [
+    "graph.cron.MyCronJob",
    
-# ]
+]
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
